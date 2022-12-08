@@ -58,36 +58,6 @@ In how many assignment pairs do the ranges overlap?
 Your puzzle answer was 900.
 """
 
-class Solution:
-    def __init__(self, assignments):
-        self.assignments = assignments.split('\n')
-
-
-    def parse_assignment(self, assignment):
-        ret = []
-        split_assignment = assignment.split(',')
-        ret.append(split_assignment[0].split('-'))
-        ret.append(split_assignment[1].split('-'))
-        return ret
-
-
-    def check_if_overlapping(self, parsed_assignment):
-        a, b = parsed_assignment
-        second_overlaps = int(a[0]) <= int(b[0]) <= int(a[1]) or int(a[0]) <= int(b[1]) <= int(a[1])
-        first_overlaps = int(b[0]) <= int(a[0]) <= int(b[1]) or int(b[0]) <= int(a[1]) <= int(b[1])
-        return first_overlaps or second_overlaps
-
-
-    def run(self):
-        counter = 0
-        for assignment in self.assignments:
-            parsed_assignment = self.parse_assignment(assignment)
-            is_overlapping = self.check_if_overlapping(parsed_assignment)
-            if is_overlapping:
-                counter += 1
-        return counter
-
-
 input = """1-2,2-96
 17-75,14-75
 33-92,93-93
@@ -1088,6 +1058,36 @@ input = """1-2,2-96
 5-88,5-5
 78-96,79-81
 8-9,7-8 """
+
+class Solution:
+    def __init__(self, assignments):
+        self.assignments = assignments.split('\n')
+
+
+    def parse_assignment(self, assignment):
+        ret = []
+        split_assignment = assignment.split(',')
+        ret.append(split_assignment[0].split('-'))
+        ret.append(split_assignment[1].split('-'))
+        return ret
+
+
+    def check_if_overlapping(self, parsed_assignment):
+        a, b = parsed_assignment
+        second_overlaps = int(a[0]) <= int(b[0]) <= int(a[1]) or int(a[0]) <= int(b[1]) <= int(a[1])
+        first_overlaps = int(b[0]) <= int(a[0]) <= int(b[1]) or int(b[0]) <= int(a[1]) <= int(b[1])
+        return first_overlaps or second_overlaps
+
+
+    def run(self):
+        counter = 0
+        for assignment in self.assignments:
+            parsed_assignment = self.parse_assignment(assignment)
+            is_overlapping = self.check_if_overlapping(parsed_assignment)
+            if is_overlapping:
+                counter += 1
+        return counter
+
 
 solution = Solution(input)
 print(solution.run())

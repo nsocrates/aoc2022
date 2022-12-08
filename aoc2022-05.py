@@ -99,47 +99,6 @@ Before the rearrangement process finishes, update your simulation so that the El
 Your puzzle answer was CNSCZWLVT.
 """
 
-import re
-
-class Solution:
-    def __init__(self, stacks, instruction_string):
-        self.stacks = stacks
-        self.instructions = instruction_string.split('\n')
-
-
-    def move(self, quantity, from_stack, to_stack):
-        crates = []
-        while len(self.stacks[from_stack - 1]):
-            if len(crates) == quantity:
-                break
-            crate = self.stacks[from_stack - 1].pop()
-            crates.insert(0, crate)
-        self.stacks[to_stack - 1].extend(crates)
-
-
-    def read_instruction(self, instruction):
-        numbers = re.findall(r'\d+', instruction)
-        if len(numbers) != 3:
-            return {'quantity': 0, 'from_stack': 0, 'to_stack': 0}
-        return {'quantity': int(numbers[0]), 'from_stack': int(numbers[1]), 'to_stack': int(numbers[2])}
-
-
-    def get_message(self):
-        output = ''
-        for stack in self.stacks:
-            stack_length = len(stack)
-            if stack_length > 0:
-                output += stack[len(stack) - 1]
-        return output
-
-
-    def move_routine(self):
-        for instruction in self.instructions:
-            payload = self.read_instruction(instruction)
-            self.move(payload['quantity'], payload['from_stack'], payload['to_stack'])
-
-
-
 crates = [['W', 'R', 'F'], ['T', 'H', 'M', 'C', 'D', 'V', 'W', 'P'],
          ['P', 'M', 'Z', 'N', 'L'], ['J', 'C', 'H', 'R'],
          ['C', 'P', 'G', 'H', 'Q', 'T', 'B'], ['G', 'C', 'W', 'L', 'F', 'Z'],
@@ -648,6 +607,45 @@ move 4 from 5 to 7
 move 6 from 5 to 1
 move 2 from 1 to 4
 move 19 from 7 to 9 """
+
+import re
+
+class Solution:
+    def __init__(self, stacks, instruction_string):
+        self.stacks = stacks
+        self.instructions = instruction_string.split('\n')
+
+
+    def move(self, quantity, from_stack, to_stack):
+        crates = []
+        while len(self.stacks[from_stack - 1]):
+            if len(crates) == quantity:
+                break
+            crate = self.stacks[from_stack - 1].pop()
+            crates.insert(0, crate)
+        self.stacks[to_stack - 1].extend(crates)
+
+
+    def read_instruction(self, instruction):
+        numbers = re.findall(r'\d+', instruction)
+        if len(numbers) != 3:
+            return {'quantity': 0, 'from_stack': 0, 'to_stack': 0}
+        return {'quantity': int(numbers[0]), 'from_stack': int(numbers[1]), 'to_stack': int(numbers[2])}
+
+
+    def get_message(self):
+        output = ''
+        for stack in self.stacks:
+            stack_length = len(stack)
+            if stack_length > 0:
+                output += stack[len(stack) - 1]
+        return output
+
+
+    def move_routine(self):
+        for instruction in self.instructions:
+            payload = self.read_instruction(instruction)
+            self.move(payload['quantity'], payload['from_stack'], payload['to_stack'])
 
 solution = Solution(crates, instructions)
 solution.move_routine()
