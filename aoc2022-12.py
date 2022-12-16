@@ -107,17 +107,17 @@ abcccccccccccccccccccccccccccaaaaaaaccccccccaaaaaaaaccccccccccaaaaaaaaaaccccccaa
 import heapq
 
 class Solution:
-    @staticmethod
-    def parse_input(puzzle_input):
-        s_input = puzzle_input.replace('S', 'a').replace('E', 'z')
-        return [[ord(s) for s in l] for l in s_input.splitlines()]
-
     def __init__(self, puzzle_input):
         self.puzzle_input = puzzle_input
-        self.grid = Solution.parse_input(puzzle_input)
         self.min_distances = []
+        self.set_grid()
         self.set_positions()
         self.run()
+
+    def set_grid(self):
+        s_input = self.puzzle_input.replace('S', 'a').replace('E', 'z').splitlines()
+        grid = [[ord(s) for s in l] for l in s_input]
+        self.grid = grid
 
     def set_positions(self):
         start_positions = []
