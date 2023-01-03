@@ -1,12 +1,368 @@
+"""
+--- Day 17: Pyroclastic Flow ---
+Your handheld device has located an alternative exit from the cave for you and the elephants. The ground is rumbling almost continuously now, but the strange valves bought you some time. It's definitely getting warmer in here, though.
+
+The tunnels eventually open into a very tall, narrow chamber. Large, oddly-shaped rocks are falling into the chamber from above, presumably due to all the rumbling. If you can't work out where the rocks will fall next, you might be crushed!
+
+The five types of rocks have the following peculiar shapes, where # is rock and . is empty space:
+
+####
+
+.#.
+###
+.#.
+
+..#
+..#
+###
+
+#
+#
+#
+#
+
+##
+##
+The rocks fall in the order shown above: first the - shape, then the + shape, and so on. Once the end of the list is reached, the same order repeats: the - shape falls first, sixth, 11th, 16th, etc.
+
+The rocks don't spin, but they do get pushed around by jets of hot gas coming out of the walls themselves. A quick scan reveals the effect the jets of hot gas will have on the rocks as they fall (your puzzle input).
+
+For example, suppose this was the jet pattern in your cave:
+
+>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
+In jet patterns, < means a push to the left, while > means a push to the right. The pattern above means that the jets will push a falling rock right, then right, then right, then left, then left, then right, and so on. If the end of the list is reached, it repeats.
+
+The tall, vertical chamber is exactly seven units wide. Each rock appears so that its left edge is two units away from the left wall and its bottom edge is three units above the highest rock in the room (or the floor, if there isn't one).
+
+After a rock appears, it alternates between being pushed by a jet of hot gas one unit (in the direction indicated by the next symbol in the jet pattern) and then falling one unit down. If any movement would cause any part of the rock to move into the walls, floor, or a stopped rock, the movement instead does not occur. If a downward movement would have caused a falling rock to move into the floor or an already-fallen rock, the falling rock stops where it is (having landed on something) and a new rock immediately begins falling.
+
+Drawing falling rocks with @ and stopped rocks with #, the jet pattern in the example above manifests as follows:
+
+The first rock begins falling:
+|..@@@@.|
+|.......|
+|.......|
+|.......|
++-------+
+
+Jet of gas pushes rock right:
+|...@@@@|
+|.......|
+|.......|
+|.......|
++-------+
+
+Rock falls 1 unit:
+|...@@@@|
+|.......|
+|.......|
++-------+
+
+Jet of gas pushes rock right, but nothing happens:
+|...@@@@|
+|.......|
+|.......|
++-------+
+
+Rock falls 1 unit:
+|...@@@@|
+|.......|
++-------+
+
+Jet of gas pushes rock right, but nothing happens:
+|...@@@@|
+|.......|
++-------+
+
+Rock falls 1 unit:
+|...@@@@|
++-------+
+
+Jet of gas pushes rock left:
+|..@@@@.|
++-------+
+
+Rock falls 1 unit, causing it to come to rest:
+|..####.|
++-------+
+
+A new rock begins falling:
+|...@...|
+|..@@@..|
+|...@...|
+|.......|
+|.......|
+|.......|
+|..####.|
++-------+
+
+Jet of gas pushes rock left:
+|..@....|
+|.@@@...|
+|..@....|
+|.......|
+|.......|
+|.......|
+|..####.|
++-------+
+
+Rock falls 1 unit:
+|..@....|
+|.@@@...|
+|..@....|
+|.......|
+|.......|
+|..####.|
++-------+
+
+Jet of gas pushes rock right:
+|...@...|
+|..@@@..|
+|...@...|
+|.......|
+|.......|
+|..####.|
++-------+
+
+Rock falls 1 unit:
+|...@...|
+|..@@@..|
+|...@...|
+|.......|
+|..####.|
++-------+
+
+Jet of gas pushes rock left:
+|..@....|
+|.@@@...|
+|..@....|
+|.......|
+|..####.|
++-------+
+
+Rock falls 1 unit:
+|..@....|
+|.@@@...|
+|..@....|
+|..####.|
++-------+
+
+Jet of gas pushes rock right:
+|...@...|
+|..@@@..|
+|...@...|
+|..####.|
++-------+
+
+Rock falls 1 unit, causing it to come to rest:
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+A new rock begins falling:
+|....@..|
+|....@..|
+|..@@@..|
+|.......|
+|.......|
+|.......|
+|...#...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+The moment each of the next few rocks begins falling, you would see this:
+
+|..@....|
+|..@....|
+|..@....|
+|..@....|
+|.......|
+|.......|
+|.......|
+|..#....|
+|..#....|
+|####...|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|..@@...|
+|..@@...|
+|.......|
+|.......|
+|.......|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|..@@@@.|
+|.......|
+|.......|
+|.......|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|...@...|
+|..@@@..|
+|...@...|
+|.......|
+|.......|
+|.......|
+|.####..|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|....@..|
+|....@..|
+|..@@@..|
+|.......|
+|.......|
+|.......|
+|..#....|
+|.###...|
+|..#....|
+|.####..|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|..@....|
+|..@....|
+|..@....|
+|..@....|
+|.......|
+|.......|
+|.......|
+|.....#.|
+|.....#.|
+|..####.|
+|.###...|
+|..#....|
+|.####..|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|..@@...|
+|..@@...|
+|.......|
+|.......|
+|.......|
+|....#..|
+|....#..|
+|....##.|
+|....##.|
+|..####.|
+|.###...|
+|..#....|
+|.####..|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+
+|..@@@@.|
+|.......|
+|.......|
+|.......|
+|....#..|
+|....#..|
+|....##.|
+|##..##.|
+|######.|
+|.###...|
+|..#....|
+|.####..|
+|....##.|
+|....##.|
+|....#..|
+|..#.#..|
+|..#.#..|
+|#####..|
+|..###..|
+|...#...|
+|..####.|
++-------+
+To prove to the elephants your simulation is accurate, they want to know how tall the tower will get after 2022 rocks have stopped (but before the 2023rd rock begins falling). In this example, the tower of rocks will be 3068 units tall.
+
+How many units tall will the tower of rocks be after 2022 rocks have stopped falling?
+
+Your puzzle answer was 3206.
+
+--- Part Two ---
+The elephants are not impressed by your simulation. They demand to know how tall the tower will be after 1000000000000 rocks have stopped! Only then will they feel confident enough to proceed through the cave.
+
+In the example above, the tower would be 1514285714288 units tall!
+
+How tall will the tower be after 1000000000000 rocks have stopped?
+
+Your puzzle answer was 1602881844347.
+"""
+
 example_input = '>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>'
 puzzle_input = '><<><<<>><<<<><<<>>>><<<<>><<>><>>>><<>>><><<<<>>>><>>><>>>><<<<>><<<>>><<<><<>><<>>><><<><<<>><<<<>><<<<>>>><<<<><<>>><<<><<>>><><>>>><>>><>><>>><<>><<<>><<<>>><<<<>>>><<<<>>><<>>><<>><<<>>><<>><<>>><<<>><><>><<><>>><<>>><<>><<<>>><<<>>><<<>>>><<>>><<<<>>><><<>>>><>>><<<<>>><>>>><<<<>><<<>>>><<<>><<<>>>><<>>><><<<>>><<<<>>>><<<><<<<>><<<<><<<<>>><<<>>>><>><>>><>><<<><><<<><<>><<<<>>>><<><<<<>>>><<<><>>><>><<><<<<>><<>>><<<>>>><<><<>><<<>><><>>><<<>>>><>>><<<<><<<<><<<<>>><<<<>>>><<<>>>><<<<>>><<<>><<>>><>><<<<>>>><<>>><<>>>><<<><<<>><>><<<<>><><>><>>>><<<>>><<<<>>>><<<<>>><<<<><<>>>><<<>>>><<<<>><<<>><>>>><<<>>><<<<>>>><>><<>><<<<>>><<<>>><<<>>>><><<>>>><<<<>><<>><<>>>><<>>><<>>><<<>>>><>>><<<>>><<<<>><>>>><<<<>>>><<<<>>><<<>>><<<>>><<<<><<<>>><><<<<>>><>>><<<<>>>><<<<>><>><<<<>><>>>><<<<>><<><<<><<><<<<><>>>><<>><><<<<><<<<>><>><<>>>><<<<>><>>><>><>><>>><>><<><<<><<<>>>><><>>>><<<>>><<<<>>><>>>><<>><>>><>>>><><<<><<<<>><<<><<<<>>>><<>>><<<><<<>>><<<>>><<<<>><>>>><<<<><<>>><<<><<<<>>>><<<><<<><>>><>><<<><<<>>><<<>>><<<>>>><<<<>><<<>><<<<>>>><<<<><<<><>><<>><>>><<>>>><>><<<>>><<<<>><<<<><>>>><>>><<<><<<<>>>><<>>>><<<>><>>>><<><<<<>>><<>>><<<<><>>>><<>><<><<>><><>><<<<>><<<<>>><<>><<>><>>><>>><<><<<<>><<<>>><>><<>>><<<>>>><<<>><<<<>>>><<<<>>><>>>><<>><><<<>>><<<><<<<><<>>>><<<>><<>>>><<<>>><<<>>><<<<>>>><<<>><<<>><<<>>><<<<>><>>><<>>>><<>>><<<<>>>><<<<>><<>>>><<>>><<><>>>><>><<<<><>>>><>>>><<<>>><><<<<>><>>><>>><<>>>><><><>>><<><<<>>>><<<>><<<<>>><<<<>>>><<<<><<<<>>>><<<>>>><<<<>>>><<<><<><<><<<<><>>><<><<<>><<>><<<>><>>><<<<>>><<<<>>><<<<>><>><><<<<>><<<><<>><><<>>>><>>><<<>>><<<<><<>>>><><<<>>><<>>>><<<<>><<<<>>><<<<>>><<<>>>><>><<>>>><<<><<<<><>><<<><<<<>>><<<><<<>>><<<>>><>>>><<<><>><<<><<><<<>>><<<>><<><<<<><<<>><>>><<<<>>>><>>><<<<>><<<<>>><<><<><<<<>>>><><>>>><<<<><<>>><<>><<<>>>><<>>>><<<>>>><<<><>>><<<<>>>><>>>><<<>>>><<>>>><<<<><<>><>><<>><<<>>><>>><>>><<<>><<<><<>><<>>>><<>>>><<<>>>><>>><>><<<>>>><<>>>><<<><<>>><<><<<>>><>><<<<>>><>>><<<><<>>><<><<<><<<><<<<><<<<>>><<<<>><<>>><<><<>><<><<><<>>><<<>><>>>><<<<>>>><<><<<<>>><>>><<<>><>>>><<<>>>><>>>><<<>><<>><<<<>><<>><<<>>><<<<>>>><<><>>>><<<<><<<>>>><<<<>><<<<>>><><<<>>>><>>><<<<>>><<>>>><<<<>>>><<<<>>>><><<>>>><<<><>>>><<<<>><<<<><<<<>>><<<><<>>><<<>>><><><<<>><<<>><>>>><<<<>><<>>><<<<><>>><<<<>><<>>>><<><<>><<<<><>>><<<<><<<<>><<<<>><<><<<>>>><>>>><<>>><<>><<<<>><<><<><<<>>><<<>>>><<<<><<<>>><>>><<<>><<>>>><<<<>><<<>>><<<>><<<>>><><>>>><>><><<<<><<>>>><<>>><<>><<>>><<<<>><<<<>><><><<>>><<><<>>><<<<>>><>>><<>><<<<><<<>>><>><<<<>>><<>>><<<><<<>><<>>><><<<<>>><<<<>><>>>><>>>><<>>>><<<<>>><>><<<<>>><<>>><<<><>><<>><<<><<<>>><<<<>>><<>>>><>>>><<<<>>>><>>><<<<><<>><><<<>>><<>>>><<<<>>>><<<<>>>><<>><<<<>>>><<>><<><<>><<>>>><>>>><>>><<<>><>><<><<<>><<<><<>>><>>>><<<>>><>>><<<>>>><<<<>><<<><<>><<>><<<<><<>>><<<><<<<>><<<>>>><<<><<>><<<<>>><><<<>>>><<>><<<>>>><<<><<<><<>><>>><<<>>><<>><<<<>>><<<>>>><<>>><>>><<>>>><<<<>><>>>><<<<>><<>>><<>><<<>>><<<>>>><<<><><<<<><>>><<<>>>><<<<>>><<>>>><<>>><<<>>>><<>>>><<>>><>>><<><><<<><<<<>>>><>><>>>><><<<>>>><<<<><<<<><<>><>><<><<<>>>><>>><<<>>><>>>><>>><>>>><><<>>>><>><>><<>><><<<<>>><>>><<<<>>>><<<<><<<>>><<<<><>><>>><<><<<<>>>><<>>><<<<>>>><<<<>>><<>>>><>><<<<>>>><<<><><<<><<<<><><<<>><<>>><<<><<<>>><<<>><>>><><<<<>>>><<<<>>><>>>><>>><<><<<<><<<><<<<>><<<>>>><<<><<<<>>><<<>><<>>>><>>><<>>><<<<>><<>>><<<><>>>><<>>>><>>>><<<<>>><><<<<>><<<>>>><<<<>><<<><<<>>>><>>><<>>><<><<<<>>><>><><<><>>><>>><<<>><>>><<>>>><<>>>><>><><<<<>>>><<>>>><<>>>><<<>>>><<>>>><>>>><<>>>><>><<<>><<<<>>>><<>>>><><>>><<<<><<<<>><<>>><<>><<<<>><>><<>>>><<<>><<<<>>><<><<<><<<>>><<<<>>><<<>><>><<<<>>>><>><<<<>>><><<<>>>><>>><<<<>><>><<>>>><>>><<<<>>><<<>>>><<<>><<<<>>>><>>><>>>><<><<<>>><<<<>>>><<<>>><<<>><>><>>>><<<>>>><><<><>>><<<>><<><<<>><<<<>>><<>><>>><<<<><<<<><<<<>>><<<<>><><<<<>>><<><><<>>>><<<><><<>>>><<>>>><<<><>>>><<<<>>>><>>><<<>>>><<<<><<<>><<<<>>>><<>>><<<><<<<>>>><<>><>>>><<<<><>>>><<>>>><<<>><<>>><>>><<>>><<<<>>>><<>>>><<<<>>>><<>>><<<>><>><>>><<<><<<<>><<<>><>><<<>>><><<>><<<<>><<<<>>><<<>>><<<<>><><<<<>>><<<><<<>>>><><<<><<<<>>>><<><<<<><<><<<<>>>><><<<>><<<<>>>><<><><<>>>><>><<>>>><<>>>><<<<>>><><><><>>>><<>><>>><<>><<>><>>><<>>>><<<>>>><<<><<<>>><<<<>>>><<<<>>>><<>><<<<>><<<<><<<<>>>><<><<>>>><>>>><>>>><<<<><<<<>>><<<<>><<<>><<><<<><<<<><<<><><<>><><<<>><<<>>><<<<>><<<>>><><<<<>><<<><<>><<<>>>><<<>>>><>><><<>><>>><<>>>><<>>><>>>><<>>><<<>>>><>>>><>>><<<<><<>>><>><>>>><<<>>>><<<><>>><<><<>>>><<<>>>><<<>>><<>>><>>>><<>>>><<<<>>><<<<><><<>>>><<<<>><<<<>>>><>>><>>>><<<>><><<<><<>><<<>><<<>>>><<<<><>>><<<<>>>><<<<>>><<<>>>><<<<>>><>><<<<>>><<<<>>><<<<>><<<<><<>><<>><><<<>>><<<<>><>>>><<><>>><<>>>><>>><<<>><<<<>>><<<>>><<<<>>>><<<>>>><<<<>>><<<>>>><<<<>>>><>>><>>><<<<>>>><<<>>>><<>>>><<<>>><<<>>>><<><><>>><<><<<><<<<>><<<<>><<>>>><<<<>>>><<<<>>><<<>>><<>>><>><<>><>>><<<>>>><<>>>><<<><<>><<><><<<><<<<>><<><><<>>><<><<<><<<<>>><<<>><<<<>><<>><<<>><>>>><>><<<<><<<<>>>><<<>>><>>>><<<<>>>><<>>>><<<<><<<>>><>>><<>>><>>><<<<>><>>><<<>>>><<>><<<<>>>><<><<<<>>><<>>>><<>>>><<<>>>><<<>>>><<><>>><<<>>>><<>>><>>><<>><<<>>>><>>><>>>><<<<>>>><<>><<>>>><<<<>><<<<>>>><<<>><<><<>>><<<><<>><><<<<>>>><<<<><<<<>><><<<<>>><<<<>>><<<><<>>>><<><<<>>><>>><<>>><<<<>>>><<>>><<><<<<>>>><<<<>><<<><<>>>><<<>>>><<<><<<>><<<<>>>><>>>><<><>><<>>>><<<>><<<<>>><<<>>>><<<>>><<<<><<<>><<>><<<><<>><<>><<<>>><>><<>><<><<<>>><<>><<<>><<><<<<>><<>><<<><<<<>><>><<<<><<<<>>>><<>><<<>>><<>>><<>>><<>>>><<>>><<>>>><<<<>>><><<<<>>><<<>>><<>>><>>>><<<<>><<>><<<<><>>><<><<<<>>>><>><<>><>>><<<>><<>>>><<<<><>><<><<<<>>>><<<<>>><<>><<>><<<<><<<<>><<<<><<<<>><>><<<<><<><<<<>><<>>>><<<<><<<>>><<<><<<>>>><<><<>><<><<><<<<>>><<<>><<><<<<>><<>><<<>>>><<<>>>><<<<>>><<<>>><<<<><<<><<<<><<<><<<>>>><><<<<><>><<<<><<<><><<<>><<<>>><<<>><<<>><<<<>><<>><<<<>>><<<<>><<<<>>><<>><<<<>><<<>><<<><<>><<>>>><<<>>><<<><<>>>><<<<>>>><<><<<>>>><<<><<<>>><<>>><<<<>>>><>>>><<><><>>><<>>>><<<>>><<<<><<<>>><>>>><>>><<<>><<><<<<>>><<>>><<<>>>><<<>>>><<>>><<>>>><<<<>>>><<<><>>>><>><<<>>>><><>><<><<<><<<>>>><><<<<>>><<>>><>>><><<>><<<>><>>>><>><>>>><<<<>>><><<<<>>><>><<<>>><<<<>>>><<<<>>>><>><<<<>><<>>>><<<>>><<<><<<>>>><<><<<>>><<<<>>>><<>><<>><<<<>><<<><<>>><<><>>><<>>><>><<<>>><<<<>>><>><<<<>>>><<<>><<><<<<>><<<>>>><<<<>>><<<>>><<<<>><<>><>>><<<<>>><<<<>>>><>>><><<><<<><>>><<>>><<><>>>><>><>><<<><<><>><>><>>>><<>><>>><<<>><<<><>><>>><>>><<<>>><<<<>>><<<<>><<<<>>>><<>><<<<>>><>>>><<<>>>><>>>><>><<<>>><<>>><>>>><<<><<>>>><<>>>><<<>>><<<>><>>><<<<>>><<<><<<>>>><<<>>><<>>><><<<<>>><<>>>><<<<>>>><>><<>><<<>>>><<<>><<<<><<<>>><<<>>><>>>><<<<>>><<<<>><<<>>><>>>><<<>><<>><<<>>>><<>>>><<>>><<<><<<<>><<>><<<<>>>><<<>><<<<><<<<>><<<<>>><>><<<<>>>><<<<>>>><<<<>>>><<<<>>><><<<>>><<<<>>><<<><<<<><>>><<<<>>>><<>><<<<>><<>><>>>><>>>><<<<><>><<>><<>>>><<<<><<<<>><<<<>>><<>>><<>><><<>>><>><>><<<<>><>>>><<<<>>><><<<<>>>><<<>>>><<<>>><>>>><<<><>>><<><<<<>><<>>><>>>><<>>><<<<>><<<<>>><<><<>>>><<>>><<>>><<<<>>>><<<<>>><>>>><<>>>><>><<><<>>><<<><<<<>>>><<>><<>>>><<>>><<<<>>>><<>><<>>>><>><>>><>>><><<><>>>><<><<>>>><<<><<<><<<>>>><<><<<<><<<>>><<<<>><>>><<>>>><>>>><<<<>>>><><<>>>><<<>><<<>><<<<>><<<>><<<>>>><<<>>>><<<>><<>><<<<>>>><<>>>><<>><<<<>><>>><<<<><><>>><>><<<<><<>><<>>><<<><<<<>>><<<<>>><<<<><<>>>><<<>>>><>>>><<>>>><<<>><<<<>>><<<<>>>><>>>><<<>>><<<<>>>><<>>><<>>><><<<>>>><<<<>>><<><<<<>>><<<>>>><>>><<>>>><<<>>>><<><<>><<>><<><>>>><<<>><<<>><<<<>>><<>>>><<<<>><><<>>><><<<<>>><<>>><<<>><>><<<>><<<><<>>>><<>>>><<>><<<>>>><<>>>><<<<><<><<>><<>>><<<><>>>><>>><<<>>>><<>>><>>>><<<<><<<><<>>><<<<>><<>><<<<>><>>>><<<>>>><>>><<<><<<>>>><><<<><>>>><<<><<<><<<<>>><<><<>><>>>><<<<>><<<<><>>>><<<<>>><<<<><<>>>><<<>><<<<>><<<<>><<<<><><>>><<<>>>><<<<><<<<>>>><<<<>>><<<<><<<<><>><>>><<<<><>><>>>><<<<><<>><>>>><>>><<<<>>><>><<<>>>><<>>>><<<<>>><<<>>><>><<>><<<>><<<<>><<<<>>>><<>>><<<><<<<>><>><<>>>><<>><<<>>><<<<>>>><>><>>>><<<><<<><>><<<>>><<<>>>><<><<><<>>>><>><<>>><>>><<<>>>><<>>>><<><<><<<>>>><>><><<><<<<>>><<>>>><<<<>><>><<>>>><<<><<>>><<<>>><>><<<<><<><<>><<>><<<>><<>>>><<<><<<>>><>><<<>>>><<><<<>>>><<>>>><<<>>>><>><>>>><<>><<><<>>>><>><<<<>><>><>>>><<<<>>><>>>><>>><<<<>>><<<<>>>><<<<>>><<<<>>>><<><<>>><<<><<<<><<>><<><><<>>><<<>>><>><<<<>>>><<><><<>>><<>><<<>>>><<<<>><<>><<>>>><<<<>>><<>>><<<><<<<>><<<>>>><<<<>>>><<<><<<<>>>><<<>>><<<><<>>>><><<<>><>>><><>><<<>>><>>><>><><<>>><<<<><<<><<<<>>>><><<>>><>>>><>>><<<><<>>><<<>>>><<<>>>><<<<>><<<<>>>><<<<><>>><<<<>>><<<>>>><>><<<>>>><<<>><<<>><<<<>>>><<<<>><<<>>><>>><<<<>>><><<<>>><>><<>>><<>>>><>><>>>><<<<>><<>>><<><<<>><<<<><>>>><<>>>><<>><<>>>><<>>><<<<>><<<<><<<<><<>>>><<>>><<<<>><<<>>><<>>><<<>>>><<<<>>><<<>>>><<<>><<>>>><<<<>>>><>>>><<<>><<<>>>><<<<>><<>>>><>><<>><<<<>><>>><>>><<<>>>><<<<>><<<>>><<<>><>>><<>>><>>>><<>><>><<>><<>>>><<>><>>>><<<>>><<<<>><>><>>><><<>><><<<<><<>>>><<<>>>><>>>><<<<>><<<><>>><<<>><<<><<<>>><>><><<<<>>>><<<<>>><<<>>><<<>>><>><<<<><<<>><<<<>><><<<>>>><<<>>><<<<><<>>><><<<<><<>>>><<>><<>>><><<>>><<<>>><<<>>><<<>>>><<<>>>><<<><<>><<><<><<<<>><<<<>>>><>>><<<><<<<><<<><<<<>>><<<<>>><<<<><<<>>>><<>>><<<<>>><<><<<>>>><<<<>>>><<>>><<>>><<<<><>>><<<>><<<<><<<<><>>><<>><<<<>>>><>>>><>><<><<<<><<<>><<<<>>><>><>>><>>><<><><>>><<<<>>><<<>>>><<>><><<<<><<<>><>>><<><<<<>><<><><<<>>>><>>>><<<>>><<<>>><<>><<<>>><<<><<<<>><<<>>>><<>><<<<>>>><<<>>><>><<<>>><<<<>><<<>><<<<><<<<><<>>>><<><<<<>>>><<>><<><<<>>><<<<><<<<>>>><<<><<<<>>>><>><<>><<>>><>><<>><<<>><<><>><><><<<<><<>><<<<>><>>><<>><<<>><<<<>>><<<<><<<>><>><<<<>>><<<>>><>>>><<>>><<<<><>><><<>>><<<>><>>>><<<><<<<>>>><<<<><><<<<><<<>><<>>><<<<>>><<<<>>><<<>>><>><<<<>>><<<<>>>><<<<>><<>>><<<<><<>>>><>>>><<<>><<<>>><<>>>><>>><><>>><<<>>>><>>><<><<<>><<<<><<<<>><<<<>>>><<<><<>><<<>>>><<<<>>><<<<>>><<<<>><<<<><<>>>><<<<>>><<<<>><<>><<<<>><<<><<>>><<>>>><<<>><>>>><>>><>><><<<<>><>>><<>><<<<>>><<<>>><<<<><<<><<<<><>><><<<><<<<>>><<><<<>>>><<<>>>><<>>><<<>>><<>>>><<>>>><<<<>>><<<<>>><<><>><>><><<<<>>><<<><<<<>>>><<>>><<<<>><<<><><>>><<<<>><<<<><<<<><<<<>>>><<<<>>>><<<>>>><><>><<<<>>>><<>>>><<<><<>>><<<>>>><>><<<<>><<>>>><>>><<<<>><<<>>>><>>><<<<>><<>><<<><>><<>>>><<>>><><<>>><<<<>>><<<<>><<<><<>><<<><<<>>><<<>><<<<>>>><>>'
 
+from operator import itemgetter
 from enum import Enum
+
+class Node:
+    def __init__(self, value = None, index = 0):
+        self.value = value
+        self.index = index
+        self.next = None
+
 
 class Base_Shape:
     def __init__(self, name, body):
         self.name = name
         self.body = body
+        self.width = max(body, key=itemgetter(0))[0] + 1
+        self.height = max(body, key=itemgetter(1))[1] + 1
 
 
 class Minus_Shape(Base_Shape):
@@ -18,8 +374,6 @@ class Minus_Shape(Base_Shape):
             (2, 0),
             (3, 0)
         ]
-        self.width = 4
-        self.height = 1
         Base_Shape.__init__(self, name, body)
 
 
@@ -33,8 +387,6 @@ class Plus_Shape(Base_Shape):
             (1, 2),
             (2, 1)
         ]
-        self.width = 3
-        self.height = 3
         Base_Shape.__init__(self, name, body)
 
 
@@ -48,8 +400,6 @@ class L_Shape(Base_Shape):
             (2, 1),
             (2, 2)
         ]
-        self.width = 3
-        self.height = 3
         Base_Shape.__init__(self, name, body)
 
 
@@ -62,8 +412,6 @@ class I_Shape(Base_Shape):
             (0, 2),
             (0, 3)
         ]
-        self.width = 1
-        self.height = 3
         Base_Shape.__init__(self, name, body)
 
 
@@ -76,32 +424,26 @@ class O_Shape(Base_Shape):
             (1, 0),
             (1, 1)
         ]
-        self.width = 2
-        self.height = 2
         Base_Shape.__init__(self, name, body)
 
 
-class Bag:
+class Shapes:
     SHAPES = [Minus_Shape, Plus_Shape, L_Shape, I_Shape, O_Shape]
 
     def __init__(self):
-        self.shapes = []
-        self.size = 0
-        self.fill()
-
-    def fill(self):
+        dummy = Node()
+        current = dummy
         for Shape in self.SHAPES:
             shape = Shape()
-            self.shapes.append(shape)
-        self.size += len(self.SHAPES)
+            node = Node(shape)
+            current.next = node
+            current = node
+        current.next = dummy.next
+        self.current = dummy
 
-    def remove(self):
-        if self.size <= 0:
-            self.fill()
-
-        shape = self.shapes.pop(0)
-        self.size -= 1
-        return shape
+    def take(self):
+        self.current = self.current.next
+        return self.current.value
 
 
 class Message(Enum):
@@ -117,14 +459,18 @@ class Board:
         self.prev_height = 0
         self.grid = [[]] * self.width
         self.prev_grid = [[]] * self.width
-        self.is_committed = False
 
-    def to_string(self):
+    def peek(self, n=None):
+        n = n if n is not None else self.height
+        end = self.height - n if self.height > n else 0
         ret = ''
 
-        for y in range(self.height - 1, -1, -1):
+        for y in range(self.height - 1, end - 1, -1):
             for x in range(self.width):
                 ret += '#' if self.grid[x][y] else '.'
+
+                if x < self.width - 1:
+                    ret += ' '
 
             if y != 0:
                 ret += '\n'
@@ -136,21 +482,14 @@ class Board:
         self.height += 1
 
     def backup(self):
-        self.prev_grid = [row[:] for row in self.grid]
+        self.prev_grid = [r[:] for r in self.grid]
         self.prev_height = self.height
-
-    def commit(self, should_commit=True):
-        self.is_committed = should_commit
 
     def undo(self):
         self.grid = self.prev_grid
         self.height = self.prev_height
-        # self.commit(True)
 
     def insert(self, shape, x, y):
-        # assert self.is_committed, 'Previous round has not been committed'
-
-        # self.commit(False)
         self.backup()
 
         for bx, by in shape.body:
@@ -172,19 +511,32 @@ class Board:
 
 
 class Solution:
-    ITERATIONS = 2022
-    # ITERATIONS = 1000000000000
+    # ITERATIONS = 2022
+    ITERATIONS = 1000000000000
     BOARD_WIDTH = 7
 
+    @staticmethod
+    def parse_input(puzzle_input):
+        dummy = Node()
+        current = dummy
+        for i, c in enumerate(list(puzzle_input)):
+            v = -1 if c == '<' else 1
+            node = Node(v, i)
+            current.next = node
+            current = node
+        current.next = dummy.next
+        return dummy.next
+
     def __init__(self, puzzle_input):
-        self.movements = list(puzzle_input)
-        self.bag = Bag()
+        self.direction = self.parse_input(puzzle_input)
+        self.shapes = Shapes()
         self.board = Board(self.BOARD_WIDTH)
         self.current_shape = None
         self.current_x = 0
         self.current_y = 0
+        self.offset = 0
 
-    def set_shape(self, shape, x, y):
+    def set_current(self, shape, x, y):
         message = self.board.insert(shape, x, y)
 
         if message.value <= Message.PLACE_OK.value:
@@ -199,49 +551,53 @@ class Solution:
     def spawn(self, shape):
         px = 2
         py = self.board.height + 3
-        # self.board.commit(True)
-        return self.set_shape(shape, px, py)
+        return self.set_current(shape, px, py)
 
     def move(self, x, y):
         self.board.undo()
         dx = self.current_x + x
         dy = self.current_y + y
-        message = self.set_shape(self.current_shape, dx, dy)
+        message = self.set_current(self.current_shape, dx, dy)
 
         if message.value >= Message.PLACE_OUT_BOUNDS.value:
             self.board.insert(self.current_shape, self.current_x, self.current_y)
 
         return message
 
-    def tick(self):
-        return self.move(0, -1)
-
-    def spawn_next(self):
-        shape = self.bag.remove()
-        return self.spawn(shape)
-
     def run(self):
-        direction = {'<': -1, '>': 1}
+        direction = self.direction
+        cache = {}
         i = 0
 
-        for _ in range(self.ITERATIONS):
-            print(_)
-            self.spawn_next()
+        while i < self.ITERATIONS:
+            shape = self.shapes.take()
+            self.spawn(shape)
 
             while True:
-                if i >= len(self.movements):
-                    i = 0
-
-                movement = self.movements[i]
-                self.move(direction[movement], 0)
-                message = self.tick()
-                i += 1
+                self.move(direction.value, 0)
+                message = self.move(0, -1)
+                prev_direction = direction
+                direction = direction.next
 
                 if message.value >= Message.PLACE_OUT_BOUNDS.value:
+                    position = (prev_direction.index, self.board.peek(15))
+
+                    if position in cache:
+                        prev_height, prev_iteration = cache[position]
+                        iteration_difference = i - prev_iteration
+                        height_difference = self.board.height - prev_height
+                        remaining_iterations = self.ITERATIONS - i
+                        repitition_count = remaining_iterations // iteration_difference
+                        i += repitition_count * iteration_difference
+                        self.offset = repitition_count * height_difference
+                        cache = {}
+
+                    cache[position] = (self.board.height, i)
                     break
+            i += 1
 
     def get_answer(self):
-        return self.board.height
+        return self.board.height + self.offset
 
 
 solution = Solution(puzzle_input)
